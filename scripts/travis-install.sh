@@ -10,7 +10,6 @@ sudo apt-get update
 #
 # Hive
 #
-
 sudo apt-get install -y --force-yes hive
 sudo cp $(dirname $0)/travis-conf/hive/* /etc/hive/conf
 sudo -u hive mkdir /tmp/hive && sudo chmod 777 /tmp/hive
