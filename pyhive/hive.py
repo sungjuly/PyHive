@@ -19,7 +19,6 @@ import contextlib
 from future.utils import iteritems
 import getpass
 import logging
-import sasl
 import sys
 import thrift.protocol.TBinaryProtocol
 import thrift.transport.TSocket
@@ -82,13 +81,21 @@ class Connection(object):
             # NOSASL corresponds to hive.server2.authentication=NOSASL in hive-site.xml
             self._transport = thrift.transport.TTransport.TBufferedTransport(socket)
         elif auth == 'NONE':
-            def sasl_factory():
-                sasl_client = sasl.Client()
-                sasl_client.setAttr(b'username', username.encode('latin-1'))
-                # Password doesn't matter in NONE mode, just needs to be nonempty.
-                sasl_client.setAttr(b'password', b'x')
-                sasl_client.init()
-                return sasl_client
+            try:
+                import sasl
+                def sasl_factory():
+                    sasl_client = sasl.Client()
+                    sasl_client.setAttr(b'username', username.encode('latin-1'))
+                    # Password doesn't matter in NONE mode, just needs to be nonempty.
+                    sasl_client.setAttr(b'password', b'x')
+                    sasl_client.init()
+                    return sasl_client
+            except:
+                from puresasl.client import SASLClient
+                def sasl_factory():
+                    return SASLClient(host,
+                                      username=username.encode('latin-1'),
+                                      password=b'x')  # Password doesn't matter in NONE mode, just needs to be nonempty.
 
             # PLAIN corresponds to hive.server2.authentication=NONE in hive-site.xml
             self._transport = thrift_sasl.TSaslClientTransport(sasl_factory, b'PLAIN', socket)
@@ -350,7 +357,7 @@ def _unwrap_column(col):
         if wrapper is not None:
             result = wrapper.values
             nulls = wrapper.nulls  # bit set describing what's null
-            assert isinstance(nulls, (str, bytes))
+            assert isinstance(nulls, bytes)
             for i, char in enumerate(nulls):
                 byte = ord(char) if sys.version_info[0] == 2 else char
                 for b in range(8):
