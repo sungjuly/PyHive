@@ -88,8 +88,7 @@ class TestHive(unittest.TestCase, DBAPITestCase):
 
         self.assertEqual(len(cursor.fetchall()), 1)
 
-    @unittest.skip("Test added to repository with PR #83, but never passed. Skipping until fixed.")
-    # @with_cursor
+    @with_cursor
     def test_cancel(self, cursor):
         # Need to do a JOIN to force a MR job. Without it, Hive optimizes the query to a fetch
         # operator and prematurely declares the query done.
