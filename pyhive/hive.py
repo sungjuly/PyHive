@@ -304,7 +304,7 @@ class Cursor(common.DBAPICursor):
 
         try:  # Older Hive instances require logs to be retrieved using GetLog
             req = ttypes.TGetLogReq(operationHandle=self._operationHandle)
-            logs = self._connection.client.GetLog(req).log.split('\n')
+            logs = self._connection.client.GetLog(req).log.splitlines()
         except ttypes.TApplicationException as e:  # Otherwise, retrieve logs using newer method
             if not e.type == ttypes.TApplicationException.UNKNOWN_METHOD:
                 raise

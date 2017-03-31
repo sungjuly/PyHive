@@ -18,8 +18,8 @@ import sys
 _HOST = 'localhost'
 
 
-@unittest.skipIf(sys.version_info.major == 3,
-                 'Hive SASL seems to broken in the Travis Python 3 environment.')
+# @unittest.skipIf(sys.version_info.major == 3,
+#                  'Hive SASL seems to broken in the Travis Python 3 environment.')
 class TestHive(unittest.TestCase, DBAPITestCase):
     __test__ = True
 
